@@ -115,33 +115,6 @@ exports.option = {
         },
         [λ.AnyVal]
     ),
-
-    'when testing traverse with Some should return correct value': λ.check(
-        function(a) {
-            return a.traverse(identity, Identity).x === a.x;
-        },
-        [λ.someOf(Number)]
-    ),
-
-    'when testing traverse with None should return correct value': λ.check(
-        function(a) {
-            return a.traverse(identity, Identity) === Option.None;
-        },
-        [λ.noneOf()]
-    ),
-    'when testing sequence with None should throw error': λ.check(
-        function(a) {
-            var msg = '';
-            try {
-                a.sequence();
-            } catch(e) {
-                msg = e.message;
-            }
-            return msg === 'Unable to sequence on None';
-        },
-        [λ.noneOf()]
-    ),
-
     'when testing Some with orElse should return correct value': λ.check(
         function(a, b) {
             return equals(Option.Some(a).orElse(b))(Option.Some(a));
@@ -210,21 +183,28 @@ exports.option = {
         },
         [λ.AnyVal]
     ),
+
+    'when testing traverse with None should return correct value': λ.check(
+        function(a) {
+            return a.traverse(identity, Identity.of).x === Option.None;
+        },
+        [λ.noneOf()]
+    ),
     'when testing sequence with Some should return correct type': λ.check(
         function(a) {
-            return isIdentity(a.sequence());
+            return isIdentity(a.sequence(Identity.of));
         },
         [λ.someOf(λ.identityOf(Number))]
     ),
     'when testing sequence with Some should return correct nested type': λ.check(
         function(a) {
-            return isSome(a.sequence().x);
+            return isSome(a.sequence(Identity.of).x);
         },
         [λ.someOf(λ.identityOf(Number))]
     ),
     'when testing sequence with Some should return correct value': λ.check(
         function(a) {
-            return a.sequence().x.x === a.x.x;
+            return a.sequence(Identity.of).x.x === a.x.x;
         },
         [λ.someOf(λ.identityOf(Number))]
     )
